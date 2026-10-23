@@ -87,10 +87,10 @@
 
     <!-- Rubro 1: Venta de Centro -->
     <div class="card">
-        <div class="card-title">🏬 1. Cumplimiento Venta de Centro</div>
+        <div class="card-title">🏬 1. Venta de Centro</div>
         
         <label for="cump-venta">% Cumplimiento Meta Venta Centro:</label>
-        <input type="number" id="cump-venta" placeholder="Ej: 107" value="107" step="0.1" oninput="calcular()">
+        <input type="number" id="cump-venta" placeholder="Ej: 107" value="107" step="0.1" onkeyup="calcular()" onchange="calcular()">
 
         <div id="chip-venta"></div>
 
@@ -105,7 +105,7 @@
         <div class="card-title">🔍 2. Multiplicador de Faltante</div>
         
         <label for="pct-faltante">% Resultado de Faltante Tienda:</label>
-        <input type="number" id="pct-faltante" placeholder="Ej: 0.8" value="0.8" step="0.01" oninput="calcular()">
+        <input type="number" id="pct-faltante" placeholder="Ej: 0.8" value="0.8" step="0.01" onkeyup="calcular()" onchange="calcular()">
 
         <div class="grid-2">
             <div class="metrica-box">
@@ -119,4 +119,80 @@
         </div>
     </div>
 
-    <!-- Resultado Final -->  
+    <!-- Resultado Final -->
+    <div class="result-card">
+        <div class="result-title">🏆 TOTAL INCENTIVO FINAL</div>
+        <div class="result-total" id="total-incentivo">$0.00 MXN</div>
+        <div class="result-breakdown" id="desglose-texto">Cargando cálculo...</div>
+    </div>
+
+    <div class="footer">
+        Gobierno de Incentivos — Grupo Coppel
+    </div>
+</div>
+
+<script>
+    function formatearDinero(monto) {
+        return '$' + Number(monto).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calcular() {
+        const valVenta = document.getElementById('cump-venta').value;
+        const valFaltante = document.getElementById('pct-faltante').value;
+
+        const cumpVenta = valVenta !== "" ? parseFloat(valVenta) : 0;
+        const pctFaltante = valFaltante !== "" ? parseFloat(valFaltante) : 0;
+
+        // 1. TABULADOR VENTA DE CENTRO
+        let incBase = 0;
+        if (cumpVenta < 95) incBase = 0;
+        else if (cumpVenta < 100) incBase = 800;
+        else if (cumpVenta < 105) incBase = 1100;
+        else if (cumpVenta < 110) incBase = 1500;
+        else if (cumpVenta < 115) incBase = 1900;
+        else if (cumpVenta < 120) incBase = 2300;
+        else if (cumpVenta < 125) incBase = 2800;
+        else incBase = 3300;
+
+        // 2. TABULADOR MULTIPLICADOR DE FALTANTE
+        let mult = 1.0;
+        let txtRango = "1% - 1.5%";
+
+        if (pctFaltante < 1.0) {
+            mult = 1.1;
+            txtRango = "< 1.0%";
+        } else if (pctFaltante <= 1.5) {
+            mult = 1.0;
+            txtRango = "1.0% - 1.5%";
+        } else {
+            mult = 0.9;
+            txtRango = "≥ 1.5%";
+        }
+
+        // CHIP VENTA
+        const pasoMinimo = cumpVenta >= 95;
+        const chipHtml = '<span class="chip ' + (pasoMinimo ? 'chip-green' : 'chip-red') + '">' +
+            (pasoMinimo ? '✅ Meta alcanzada (≥95%)' : '❌ Venta <95% (Sin Pago Base)') +
+        '</span>';
+        document.getElementById('chip-venta').innerHTML = chipHtml;
+
+        // ACTUALIZAR MÉTRICAS INTERMEDIAS
+        document.getElementById('res-base').innerText = formatearDinero(incBase);
+        document.getElementById('res-rango-faltante').innerText = txtRango;
+        document.getElementById('res-mult').innerText = mult.toFixed(1) + "x";
+
+        // CÁLCULO FINAL
+        const totalFinal = incBase * mult;
+
+        document.getElementById('total-incentivo').innerText = formatearDinero(totalFinal) + " MXN";
+        document.getElementById('desglose-texto').innerHTML = 
+            'Incentivo Base: <b>' + formatearDinero(incBase) + '</b> × Multiplicador Faltante (' + mult.toFixed(1) + 'x)';
+    }
+
+    // Ejecutar al cargar la página
+    document.addEventListener('DOMContentLoaded', calcular);
+    window.onload = calcular;
+</script>
+
+</body>
+</html>
