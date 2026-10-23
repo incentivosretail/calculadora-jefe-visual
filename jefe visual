@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Incentivos - Jefe Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0B2B5C;
+            --blue-accent: #1058B0;
+            --yellow: #FFD100;
+            --bg-gray: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border-color: #CBD5E1;
+            --text-dark: #1E293B;
+            --text-muted: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-gray); color: var(--text-dark); padding: 12px; }
+
+        .container { max-width: 600px; margin: 0 auto; padding-bottom: 20px; }
+
+        /* Header Ejecutivo */
+        .header {
+            background: linear-gradient(135deg, var(--navy), var(--blue-accent));
+            color: white; border-radius: 16px; padding: 20px; text-align: center;
+            box-shadow: 0 4px 12px rgba(11, 43, 92, 0.25); margin-bottom: 12px;
+        }
+        .header h1 { font-size: 1.4rem; color: var(--yellow); font-weight: 700; margin: 0; }
+        .header p { font-size: 0.85rem; color: #EBF3FC; margin-top: 4px; }
+
+        /* Tarjetas */
+        .card {
+            background: var(--card-bg); border-radius: 12px; padding: 16px;
+            border-left: 5px solid var(--navy); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 12px;
+        }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+
+        /* Inputs y Labels */
+        label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        
+        input {
+            width: 100%; padding: 10px 12px; font-size: 1.05rem; font-weight: 600;
+            border: 2px solid var(--navy); border-radius: 10px; margin-bottom: 12px;
+            outline: none; transition: border-color 0.2s;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* Chips de Estatus */
+        .chip { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+        .chip-green { background-color: #D1FAE5; color: #065F46; }
+        .chip-red { background-color: #FEE2E2; color: #991B1B; }
+
+        /* Cajas de Métricas Intermedias */
+        .metrica-box {
+            background: #EBF3FC; border-radius: 12px; padding: 10px; text-align: center; margin-top: 5px;
+        }
+        .metrica-etiqueta { font-size: 0.8rem; color: #475569; font-weight: 600; margin-bottom: 2px; }
+        .metrica-valor { font-size: 1.3em; font-weight: 700; color: var(--navy); }
+
+        /* Tarjeta de Resultado Final */
+        .result-card {
+            background: linear-gradient(135deg, var(--navy), var(--blue-accent));
+            border-radius: 16px; padding: 24px 20px; text-align: center; color: white;
+            box-shadow: 0 6px 20px rgba(11, 43, 92, 0.3); margin-top: 16px;
+        }
+        .result-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+        .result-total { font-size: 2.5rem; font-weight: 700; color: var(--yellow); }
+        .result-breakdown { font-size: 0.85rem; color: #EBF3FC; margin-top: 12px; }
+
+        /* Footer */
+        .footer { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>👔 Calculadora de Incentivos</h1>
+        <p>Jefe Visual — Esquema 2026</p>
+    </div>
+
+    <!-- Rubro 1: Venta de Centro -->
+    <div class="card">
+        <div class="card-title">🏬 1. Cumplimiento Venta de Centro</div>
+        
+        <label for="cump-venta">% Cumplimiento Meta Venta Centro:</label>
+        <input type="number" id="cump-venta" placeholder="Ej: 107" value="107" step="0.1" oninput="calcular()">
+
+        <div id="chip-venta"></div>
+
+        <div class="metrica-box">
+            <div class="metrica-etiqueta">💰 Incentivo Base Meta Centro</div>
+            <div class="metrica-valor" id="res-base">$0.00</div>
+        </div>
+    </div>
+
+    <!-- Rubro 2: Multiplicador de Faltante -->
+    <div class="card">
+        <div class="card-title">🔍 2. Multiplicador de Faltante</div>
+        
+        <label for="pct-faltante">% Resultado de Faltante Tienda:</label>
+        <input type="number" id="pct-faltante" placeholder="Ej: 0.8" value="0.8" step="0.01" oninput="calcular()">
+
+        <div class="grid-2">
+            <div class="metrica-box">
+                <div class="metrica-etiqueta">Rango Faltante</div>
+                <div class="metrica-valor" id="res-rango-faltante">-</div>
+            </div>
+            <div class="metrica-box">
+                <div class="metrica-etiqueta">✖️ Multiplicador</div>
+                <div class="metrica-valor" id="res-mult">1.0x</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultado Final -->  
